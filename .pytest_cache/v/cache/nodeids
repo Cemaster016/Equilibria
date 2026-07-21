@@ -1,0 +1,16 @@
+[
+  "tests/test_data_layer.py::test_fetch_existing_facilities_nphcda_csv",
+  "tests/test_data_layer.py::test_fetch_existing_facilities_nphcda_missing_env_raises",
+  "tests/test_data_layer.py::test_fetch_existing_facilities_nphcda_rejects_unsupported_extension",
+  "tests/test_data_layer.py::test_fetch_existing_facilities_nphcda_xlsx_with_hxl_row",
+  "tests/test_data_layer.py::test_fetch_existing_facilities_unknown_source_raises",
+  "tests/test_data_layer.py::test_population_raster_raises_when_all_nodata",
+  "tests/test_data_layer.py::test_population_raster_to_geodataframe_basic",
+  "tests/test_spatial_tools.py::test_candidate_sites_from_road_graph_returns_points",
+  "tests/test_spatial_tools.py::test_equity_score_adds_expected_columns",
+  "tests/test_spatial_tools.py::test_equity_score_rejects_empty_inputs",
+  "tests/test_spatial_tools.py::test_site_allocate_picks_requested_k",
+  "tests/test_spatial_tools.py::test_site_allocate_raises_with_no_candidates",
+  "tests/test_spatial_tools.py::test_validate_weights_rejects_bad_sum",
+  "tests/test_spatial_tools.py::test_validate_weights_rejects_missing_key"
+]

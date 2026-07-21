@@ -1,0 +1,115 @@
+:root {
+  color-scheme: light;
+  color: #111827;
+  background: #f8fafc;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #edf2f7;
+}
+
+button,
+textarea {
+  font: inherit;
+}
+
+.app-shell {
+  width: min(96vw, 1100px);
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.app-header {
+  margin-bottom: 2rem;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.app-header p {
+  margin: 0.75rem 0 0;
+  max-width: 42rem;
+  color: #475569;
+}
+
+.run-form {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.run-form label {
+  font-weight: 600;
+}
+
+.run-form textarea {
+  width: 100%;
+  min-height: 10rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.8rem;
+  border: 1px solid #cbd5e1;
+  background: white;
+  resize: vertical;
+}
+
+.run-form button {
+  width: fit-content;
+  padding: 0.85rem 1.25rem;
+  border: none;
+  border-radius: 999px;
+  background: #2563eb;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.run-form button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.results {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.error-box,
+.warning-box {
+  padding: 1rem;
+  border-radius: 1rem;
+  background: white;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+.error-box {
+  border-left: 4px solid #dc2626;
+}
+
+.warning-box {
+  border-left: 4px solid #f59e0b;
+}
+
+.report pre {
+  white-space: pre-wrap;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.map-frame {
+  border-radius: 1rem;
+  overflow: hidden;
+  background: white;
+  border: 1px solid #e2e8f0;
+  min-height: 20rem;
+}

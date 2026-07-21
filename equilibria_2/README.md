@@ -1,0 +1,98 @@
+# Equilibria
+
+**Optimizing for who's underserved, not who pays the most.**
+
+## The Problem
+
+Enterprise geospatial AI agents (CARTO, Mapbox, Google Maps, Precisely) launched conversational
+site-selection tools in 2026 — but every one of them optimizes for revenue, market share, or
+competition gaps, and runs on licensed/commercial data. NGOs, local health departments, and
+community organisations who most need data-driven facility-siting decisions can't afford a GIS
+analyst, let alone an enterprise platform.
+
+## The Solution
+
+Equilibria is a multi-agent system that takes a plain-language request — *"We have funding for
+5 new vaccination outreach points in Kano State, prioritize underserved children"* — and runs a
+full equity-weighted siting analysis end to end: fetching free open data (WorldPop, OpenStreetMap,
+national facility registries), scoring population cells by how underserved they are, optimizing
+new site locations under budget, validating the result for bias and data-quality issues, and
+producing a map plus a plain-English policy brief. No GIS software, no analyst, no budget required.
+
+![Architecture](docs/diagrams/system_overview.png)
+
+## How It Differs From Enterprise Geospatial Agents
+
+- **Equity objective, not revenue objective** — optimizes for underserved-population reach per
+  dollar, not income/competition/foot-traffic.
+- **Open data only** — runs entirely on free sources (WorldPop, OSM, national registries),
+  never a licensed API.
+- **Built for under-resourced organisations** — NGOs, local/state health departments, and
+  community groups, not retail chains or banks.
+
+## Tech Stack
+
+- **Google ADK** — multi-agent orchestration (Intake, Data-Fetcher, Equity-Scoring,
+  Site-Optimizer, Validator, Cartographer, Report agents)
+- **MCP (Model Context Protocol)** — `equity_score`, `site_allocate`, `coverage_map`, and
+  `generate_candidate_sites` tools, callable from Equilibria's own agents or directly from
+  Claude/Gemini
+- **GeoPandas, NetworkX, OSMnx, scikit-learn** — the actual spatial analysis
+- **Streamlit** — demo UI
+
+## Setup
+
+```bash
+git clone <this-repo>
+cd equilibria
+pip install -e ".[dev]"
+cp .env.example .env
+# edit .env and set GOOGLE_API_KEY (https://aistudio.google.com/apikey)
+```
+
+Run the MCP server standalone (useful for testing with the MCP Inspector):
+```bash
+python -m equilibria.mcp_server.server
+```
+
+Run the demo UI (in a separate terminal):
+```bash
+streamlit run src/equilibria/ui/app.py
+```
+
+Run the tests:
+```bash
+pytest -v
+```
+
+## Project Structure
+
+```
+src/equilibria/
+├── data_layer/      # WorldPop, OSM roads, facility registry fetchers
+├── mcp_server/      # spatial_tools.py (the analysis) + server.py (MCP wrapper)
+├── agents/          # the 7 ADK agents + the orchestrator
+└── ui/              # Streamlit demo app
+```
+
+## Demo
+
+See `demo/script.md` for the narrated walkthrough. (Video link: _add before submission_)
+
+## Course Concepts Demonstrated (Google AI Agents Intensive Capstone)
+
+1. **Multi-agent systems** — 7 ADK agents in a sequential pipeline with one conditional retry branch
+2. **MCP servers** — 4 spatial tools exposed over stdio transport
+3. **Agent skills** — equity scoring, location-allocation, and thematic mapping wrapped as callable tools
+4. **Security/governance features** — a dedicated Validator agent enforcing a privacy-aggregation
+   floor, flagging low-confidence data, and checking for distributional bias before any result
+   reaches a human
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+## Acknowledgements
+
+Built for the Google/Kaggle AI Agents: Intensive Vibe Coding Capstone. Open data sources:
+WorldPop, OpenStreetMap contributors, NPHCDA.

@@ -1,0 +1,33 @@
+# render.yaml
+# Render will read this file and auto-configure your backend service.
+# Commit this file to the root of your GitHub repo.
+
+services:
+  - type: web
+    name: equilibria-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+
+    # Environment variables — add GOOGLE_API_KEY and GROQ_API_KEY
+    # in the Render dashboard under Environment > Secret Files
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false          # you set this manually in Render dashboard
+      - key: GROQ_API_KEY
+        sync: false          # you set this manually in Render dashboard
+      - key: NPHCDA_DATA_URL
+        value: ""            # not needed in production — OSM fallback used
+      - key: DEFAULT_COUNTRY_ISO3
+        value: NGA
+      - key: EQUILIBRIA_RAW_DATA_DIR
+        value: data/raw
+      - key: EQUILIBRIA_PROCESSED_DATA_DIR
+        value: data/processed
+      - key: PYTHONPATH
+        value: src
+      - key: PORT
+        value: "8000"
+
+    healthCheckPath: /api/health
