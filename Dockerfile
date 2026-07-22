@@ -24,9 +24,6 @@ COPY src/ ./src/
 COPY data/processed/ ./data/processed/
 COPY data/raw/ ./data/raw/
 
-# Copy environment template (real secrets come from Render env vars)
-COPY .env.example ./.env.example
-
 # Expose FastAPI port
 EXPOSE 8000
 
