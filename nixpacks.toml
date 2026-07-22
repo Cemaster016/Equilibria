@@ -1,0 +1,10 @@
+[phases.setup]
+nixPkgs = ["python311", "gcc", "libgdal", "libspatialindex"]
+
+[phases.install]
+cmds = [
+  "pip install fastapi uvicorn python-dotenv geopy pydantic openpyxl groq scipy requests google-adk mcp geopandas shapely pyproj networkx osmnx scikit-learn rasterio folium matplotlib"
+]
+
+[start]
+cmd = "PYTHONPATH=/app/src uvicorn equilibria.api:app --host 0.0.0.0 --port $PORT --workers 1"
