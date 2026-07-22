@@ -7,17 +7,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Copy EVERYTHING needed for install first
+# Copy everything pip needs BEFORE installing
+COPY README.md ./
 COPY pyproject.toml ./
 COPY src/ ./src/
 
-# Now install — src/ exists so editable install works
+# Install dependencies (not editable — production build)
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir .
+    pip install --no-cache-dir \
+        geopandas shapely pyproj networkx osmnx \
+        scikit-learn rasterio folium matplotlib \
+        fastapi uvicorn python-dotenv geopy \
+        pydantic openpyxl groq scipy requests \
+        google-adk mcp
 
-# Copy cached demo data
+# Copy cached demo data last (changes often, keep at end for layer caching)
 COPY data/processed/ ./data/processed/
 COPY data/raw/ ./data/raw/
+
+ENV PYTHONPATH=/app/src
 
 EXPOSE 8000
 
