@@ -29,5 +29,4 @@ ENV PYTHONPATH=/app/src
 
 EXPOSE 8000
 
-CMD ["python", "-m", "uvicorn", "equilibria.api:app", \
-     "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+CMD ["sh", "-c", "python -m uvicorn equilibria.api:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1"]
