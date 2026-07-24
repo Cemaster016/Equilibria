@@ -268,55 +268,63 @@ def coverage_map(
     existing_facilities_gdf: gpd.GeoDataFrame,
 ):
     """
-    Builds an interactive folium map:
-      - population equity_score as a 5-class graduated choropleth
-        (Jenks natural breaks — same classification approach as Week 4's
-        thematic-mapping material), rendered as semi-transparent grid cells
-      - existing facilities as grey circle markers
-      - newly chosen sites as green star markers, with a popup showing
-        population_covered and cumulative_coverage_pct
-
-    Returns a folium.Map object (call ._repr_html_() to get raw HTML, which
-    is what the MCP server tool does).
+    Builds a lightweight interactive folium map using HeatMap for population
+    equity scores (instead of 44k individual polygons) to stay within 1GB RAM.
     """
     import folium
+    from folium.plugins import HeatMap
 
     if pop_gdf.empty:
         raise SpatialToolError("coverage_map received an empty population GeoDataFrame.")
 
-    center = [pop_gdf.geometry.centroid.y.mean(), pop_gdf.geometry.centroid.x.mean()]
+    # Use centroids for heatmap — project to metric CRS first to fix CRS warning
+    pop_m = pop_gdf.to_crs(epsg=32632)
+    centroids = pop_m.geometry.centroid.to_crs(epsg=4326)
+    center = [centroids.y.mean(), centroids.x.mean()]
+
     m = folium.Map(location=center, zoom_start=11, tiles="cartodbpositron")
 
-    breaks = _jenks_breaks(pop_gdf["equity_score"].to_numpy(), n_classes=5)
-    colors = ["#fee5d9", "#fcae91", "#fb6a4a", "#de2d26", "#a50f15"]
+    # --- equity score heatmap (replaces 44k polygon GeoJson objects) ----------
+    # Sample max 3000 points to keep HTML under 5MB
+    sample_gdf = pop_gdf.copy()
+    sample_gdf["centroid_lat"] = centroids.y.values
+    sample_gdf["centroid_lon"] = centroids.x.values
 
-    for _, row in pop_gdf.iterrows():
-        class_idx = _classify(row["equity_score"], breaks)
-        folium.GeoJson(
-            row.geometry,
-            style_function=lambda _, c=colors[class_idx]: {
-                "fillColor": c,
-                "color": c,
-                "weight": 0,
-                "fillOpacity": 0.55,
-            },
-        ).add_to(m)
+    if len(sample_gdf) > 3000:
+        sample_gdf = sample_gdf.nlargest(3000, "equity_score")
 
+    heat_data = [
+        [row["centroid_lat"], row["centroid_lon"], row["equity_score"] / 100]
+        for _, row in sample_gdf.iterrows()
+    ]
+    HeatMap(
+        heat_data,
+        min_opacity=0.3,
+        radius=18,
+        blur=15,
+        gradient={0.2: "#fee5d9", 0.5: "#fb6a4a", 0.8: "#de2d26", 1.0: "#a50f15"},
+    ).add_to(m)
+
+    # --- existing facilities (grey dots) -------------------------------------
     for _, row in existing_facilities_gdf.iterrows():
         folium.CircleMarker(
             location=[row.geometry.y, row.geometry.x],
             radius=4,
             color="#555555",
             fill=True,
-            fill_opacity=0.9,
+            fill_opacity=0.8,
             popup=f"Existing: {row.get('name', 'facility')}",
         ).add_to(m)
 
+    # --- proposed sites (green stars) ----------------------------------------
     for _, row in chosen_sites_gdf.iterrows():
+        pop_covered = row.get("population_covered", 0)
+        cum_pct = row.get("cumulative_coverage_pct", 0)
+        place = row.get("place_name", "Proposed site")
         popup_html = (
-            f"<b>Proposed site</b><br>"
-            f"Population covered: {row['population_covered']:,.0f}<br>"
-            f"Cumulative coverage: {row['cumulative_coverage_pct']:.1f}%"
+            f"<b>{place}</b><br>"
+            f"Population covered: {float(pop_covered):,.0f}<br>"
+            f"Cumulative coverage: {float(cum_pct):.1f}%"
         )
         folium.Marker(
             location=[row.geometry.y, row.geometry.x],
@@ -325,7 +333,6 @@ def coverage_map(
         ).add_to(m)
 
     return m
-
 
 def _jenks_breaks(values: np.ndarray, n_classes: int = 5) -> list[float]:
     """Lightweight natural-breaks approximation using quantiles when the
